@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Links</title>
+  <meta name="description" content="A single-page, categorized directory of useful links." />
+
+  <style>
+    :root{
+      --bg: #ffffff;
+      --fg: #111111;
+      --muted: #666666;
+      --faint: #888888;
+      --link: #0b57d0;
+      --visited: #6a1b9a;
+      --border: rgba(0,0,0,.12);
+      --card: rgba(0,0,0,.03);
+      --shadow: 0 1px 10px rgba(0,0,0,.05);
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --measure: 76ch;
+    }
+
+    [data-theme="dark"]{
+      --bg: #0c0f14;
+      --fg: #e7e7e7;
+      --muted: #b2b2b2;
+      --faint: #9aa3ad;
+      --link: #7db2ff;
+      --visited: #d3a6ff;
+      --border: rgba(255,255,255,.14);
+      --card: rgba(255,255,255,.06);
+      --shadow: 0 1px 14px rgba(0,0,0,.45);
+    }
+
+    html, body{ height: 100%; background: var(--bg); color: var(--fg); }
+    body{ margin: 0; font-family: var(--serif); line-height: 1.55; text-rendering: optimizeLegibility; }
+    a{ color: var(--link); text-decoration: underline; text-decoration-thickness: .08em; text-underline-offset: .12em; }
+    a:visited{ color: var(--visited); }
+    a:hover{ text-decoration-thickness: .12em; }
+    code, kbd{ font-family: var(--mono); font-size: .92em; }
+
+    .page{
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 28px;
+      max-width: calc(var(--measure) + 280px + 28px + 56px);
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    header{
+      grid-column: 1 / -1;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 8px;
+    }
+
+    .title-row{
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    h1{ font-size: 1.9rem; margin: 0; letter-spacing: -0.01em; }
+    .subtitle{
+      margin: 6px 0 0 0;
+      color: var(--muted);
+      max-width: var(--measure);
+      font-family: var(--sans);
+      font-size: .98rem;
+    }
+
+    .controls{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--sans);
+    }
+
+    .btn{
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--fg);
+      padding: 7px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .btn:hover{ background: var(--card); }
+
+    .btn.plus{
+      font-weight: 800;
+      width: 40px;
+      text-align: center;
+      line-height: 1;
+      padding: 7px 0;
+    }
+
+    .search{
+      width: min(520px, 100%);
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      font-family: var(--sans);
+    }
+
+    .search input{
+      flex: 1;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--fg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      outline: none;
+    }
+
+    .search input:focus{ box-shadow: 0 0 0 3px rgba(125,178,255,.25); }
+
+    .hint{
+      color: var(--faint);
+      font-size: .9rem;
+      margin-top: 8px;
+      font-family: var(--sans);
+    }
+
+    nav{
+      position: sticky;
+      top: 18px;
+      align-self: start;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 14px 10px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      font-family: var(--sans);
+    }
+
+    nav .toc-title{
+      font-size: .95rem;
+      color: var(--muted);
+      margin: 0 0 10px 0;
+    }
+
+    nav ul{
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 6px;
+    }
+
+    nav a{ text-decoration: none; color: var(--fg); opacity: .92; }
+    nav a:hover{ text-decoration: underline; opacity: 1; }
+
+    main{ min-width: 0; max-width: var(--measure); }
+
+    /* Sections as <details> for collapse support */
+    details.sec{
+      padding: 14px 0 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    details.sec:last-child{ border-bottom: none; padding-bottom: 28px; }
+
+    details.sec > summary{
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--sans);
+      font-weight: 750;
+      font-size: 1.25rem;
+      letter-spacing: -0.01em;
+      margin: 0 0 10px 0;
+      user-select: none;
+    }
+    details.sec > summary::-webkit-details-marker{ display: none; }
+
+    .anchor{
+      font-size: .95rem;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .anchor:hover{ background: var(--card); }
+
+    .section-desc{
+      margin: 0 0 12px 0;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: .98rem;
+    }
+
+    .links{
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .link-card{
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 12px;
+      background: transparent;
+    }
+
+    .link-top{
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: baseline;
+      font-family: var(--sans);
+    }
+
+    .link-name{ font-weight: 650; letter-spacing: -0.01em; }
+
+    .meta{
+      color: var(--faint);
+      font-size: .9rem;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .tags{ display: flex; gap: 6px; flex-wrap: wrap; }
+    .tag{
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: .82rem;
+      color: var(--muted);
+      font-family: var(--sans);
+    }
+
+    .link-desc{
+      margin: 8px 0 0 0;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: .95rem;
+    }
+
+    .hidden{ display: none !important; }
+
+    footer{
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: .95rem;
+    }
+
+    @media (max-width: 900px){
+      .page{ grid-template-columns: 1fr; }
+      nav{ position: relative; top: 0; }
+      main{ max-width: 100%; }
+    }
+
+    /* Modal */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      z-index: 1000;
+    }
+    .modal{
+      width: min(720px, 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--bg);
+      color: var(--fg);
+      box-shadow: 0 8px 40px rgba(0,0,0,.35);
+      padding: 16px;
+      font-family: var(--sans);
+    }
+    .modal h3{
+      margin: 0 0 10px 0;
+      font-size: 1.15rem;
+      letter-spacing: -0.01em;
+    }
+    .modal p{
+      margin: 8px 0 12px 0;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+    .grid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .grid.one{ grid-template-columns: 1fr; }
+
+    label{
+      display: grid;
+      gap: 6px;
+      font-size: .92rem;
+      color: var(--muted);
+    }
+    input, select, textarea{
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--fg);
+      padding: 10px 10px;
+      border-radius: 12px;
+      outline: none;
+      font-family: var(--sans);
+      font-size: .95rem;
+    }
+    textarea{ min-height: 84px; resize: vertical; }
+
+    .modal-actions{
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .actions-right{
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .danger{
+      border-color: rgba(255,0,0,.35);
+      color: #ff6b6b;
+    }
+
+    /* Login gate */
+    .gate{
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: var(--bg);
+      z-index: 2000;
+      font-family: var(--sans);
+    }
+    .gate-card{
+      width: min(520px, 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      background: var(--card);
+    }
+    .gate-card h2{
+      margin: 0 0 8px 0;
+      font-size: 1.25rem;
+      letter-spacing: -0.01em;
+      color: var(--fg);
+    }
+    .gate-card .small{
+      color: var(--muted);
+      font-size: .95rem;
+      margin: 0 0 12px 0;
+    }
+    .gate-row{
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .gate-actions{
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .notice{
+      color: var(--faint);
+      font-size: .88rem;
+      margin-top: 10px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Password gate -->
+  <div class="gate hidden" id="gate">
+    <div class="gate-card">
+      <h2 id="gateTitle">Locked</h2>
+      <p class="small" id="gateSubtitle">Enter the password to view and edit the page.</p>
+
+      <div class="gate-row">
+        <label>
+          <span id="gateLabel">Password</span>
+          <input id="gatePassword" type="password" autocomplete="current-password" />
+        </label>
+      </div>
+
+      <div class="gate-actions">
+        <button class="btn" id="gateReset" type="button">Reset password</button>
+        <div class="actions-right">
+          <button class="btn" id="gateSubmit" type="button">Unlock</button>
+        </div>
+      </div>
+
+      <div class="notice">
+        This gate improves casual privacy only. It does not provide real access control for hosting on the internet.
+        For real protection, use server authentication (Basic Auth, reverse proxy, or your host’s password feature).
+      </div>
+    </div>
+  </div>
+
+  <div class="page hidden" id="page">
+    <header>
+      <div class="title-row">
+        <div>
+          <h1>Links</h1>
+          <p class="subtitle">A text-first directory of useful tools and references, grouped by category.</p>
+        </div>
+
+        <div class="controls">
+          <button class="btn plus" id="addBtn" type="button" aria-label="Add link or category">+</button>
+          <button class="btn" id="themeBtn" type="button" aria-label="Toggle theme">Theme</button>
+          <button class="btn" id="expandBtn" type="button" aria-label="Expand all sections">Collapse all</button>
+        </div>
+      </div>
+
+      <div class="search">
+        <input id="q" type="search" placeholder="Search links (name, description, tags)..." autocomplete="off" />
+      </div>
+      <div class="hint">Tip: type <kbd>/</kbd> to focus search. Press <kbd>Esc</kbd> to clear.</div>
+    </header>
+
+    <nav aria-label="Table of contents">
+      <p class="toc-title">Contents</p>
+      <ul id="toc"></ul>
+    </nav>
+
+    <main id="main"></main>
+
+    <footer>
+      <div>Edits persist in your browser storage. If you want portability, add export/import later.</div>
+    </footer>
+  </div>
+
+  <!-- Add modal -->
+  <div class="overlay hidden" id="modalOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h3 id="modalTitle">Add</h3>
+      <p id="modalDesc">Add a new category or a new link. Saved to local storage.</p>
+
+      <div class="grid">
+        <label>
+          Type
+          <select id="addType">
+            <option value="link">Link</option>
+            <option value="category">Category</option>
+          </select>
+        </label>
+
+        <label id="categoryPickerWrap">
+          Category
+          <select id="linkCategory"></select>
+        </label>
+      </div>
+
+      <div class="grid" id="categoryFields" style="margin-top:10px; display:none;">
+        <label>
+          Category name
+          <input id="catName" type="text" placeholder="e.g. Aviation" />
+        </label>
+        <label>
+          Category id (optional)
+          <input id="catId" type="text" placeholder="e.g. aviation" />
+        </label>
+        <label class="grid one" style="grid-column:1 / -1;">
+          Category description (optional)
+          <textarea id="catDesc" placeholder="One sentence about what's in this section."></textarea>
+        </label>
+      </div>
+
+      <div class="grid" id="linkFields" style="margin-top:10px;">
+        <label>
+          Link name
+          <input id="linkName" type="text" placeholder="e.g. SkyVector" />
+        </label>
+        <label>
+          URL
+          <input id="linkUrl" type="url" placeholder="https://example.com" />
+        </label>
+        <label class="grid one" style="grid-column:1 / -1;">
+          Description (optional)
+          <textarea id="linkDesc" placeholder="Short description for scanning."></textarea>
+        </label>
+        <label class="grid one" style="grid-column:1 / -1;">
+          Tags (comma-separated, optional)
+          <input id="linkTags" type="text" placeholder="e.g. charts, adsb, pdf" />
+        </label>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn" id="modalCancel" type="button">Cancel</button>
+        <div class="actions-right">
+          <button class="btn danger" id="modalDeleteAll" type="button" title="Clears saved links and categories">Clear saved data</button>
+          <button class="btn" id="modalSave" type="button">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const root = document.documentElement;
+
+      // Storage keys
+      const DATA_KEY = "linksPageData.v1";
+      const PASS_HASH_KEY = "linksPagePass.hash.v1";
+      const PASS_SALT_KEY = "linksPagePass.salt.v1";
+      const PASS_ITERS_KEY = "linksPagePass.iters.v1";
+      const AUTH_SESSION_KEY = "linksPageAuthed.v1";
+
+      // Defaults
+      const DEFAULT_DATA = {
+        title: "Links",
+        subtitle: "A text-first directory of useful tools and references, grouped by category.",
+        categories: [
+          {
+            id: "ai-tools",
+            name: "AI tools",
+            description: "Model providers, evaluation, and practical utilities.",
+            links: [
+              { name: "OpenAI Platform", url: "https://platform.openai.com/", desc: "Build and run model-powered apps, with docs and tooling.", tags: ["api","llm"] },
+              { name: "LangSmith", url: "https://smith.langchain.com/", desc: "Tracing, debugging, and evaluation for LLM workflows.", tags: ["eval","traces"] },
+              { name: "Chatbot Arena", url: "https://lmarena.ai/", desc: "Community-driven side-by-side model comparisons.", tags: ["benchmarks"] }
+            ]
+          },
+          {
+            id: "pdf-tooling",
+            name: "PDF tooling",
+            description: "Create, edit, compress, OCR, and extract tables.",
+            links: [
+              { name: "Ghostscript", url: "https://www.ghostscript.com/", desc: "Command line PDF processing, conversion, and compression.", tags: ["compress","convert"] },
+              { name: "Tesseract OCR", url: "https://github.com/tesseract-ocr/tesseract", desc: "Open-source OCR engine for scanned documents.", tags: ["ocr"] },
+              { name: "Tabula", url: "https://tabula.technology/", desc: "Extract tables from PDFs into CSV.", tags: ["tables"] }
+            ]
+          },
+          {
+            id: "aviation",
+            name: "Aviation",
+            description: "Tracking, weather, charts, and references.",
+            links: [
+              { name: "ADS-B Exchange Globe", url: "https://globe.adsbexchange.com/", desc: "Live aircraft tracking with strong filtering tools.", tags: ["tracking","ads-b"] },
+              { name: "Aviation Weather Center", url: "https://aviationweather.gov/", desc: "Official aviation weather products and forecasts.", tags: ["metar","taf"] },
+              { name: "SkyVector", url: "https://skyvector.com/", desc: "Flight planning and aeronautical charts.", tags: ["charts"] }
+            ]
+          }
+        ]
+      };
+
+      // Elements
+      const page = document.getElementById("page");
+      const toc = document.getElementById("toc");
+      const main = document.getElementById("main");
+      const q = document.getElementById("q");
+      const themeBtn = document.getElementById("themeBtn");
+      const expandBtn = document.getElementById("expandBtn");
+      const addBtn = document.getElementById("addBtn");
+
+      const modalOverlay = document.getElementById("modalOverlay");
+      const addType = document.getElementById("addType");
+      const categoryPickerWrap = document.getElementById("categoryPickerWrap");
+      const linkCategory = document.getElementById("linkCategory");
+
+      const categoryFields = document.getElementById("categoryFields");
+      const linkFields = document.getElementById("linkFields");
+
+      const catName = document.getElementById("catName");
+      const catId = document.getElementById("catId");
+      const catDesc = document.getElementById("catDesc");
+
+      const linkName = document.getElementById("linkName");
+      const linkUrl = document.getElementById("linkUrl");
+      const linkDesc = document.getElementById("linkDesc");
+      const linkTags = document.getElementById("linkTags");
+
+      const modalCancel = document.getElementById("modalCancel");
+      const modalSave = document.getElementById("modalSave");
+      const modalDeleteAll = document.getElementById("modalDeleteAll");
+
+      const gate = document.getElementById("gate");
+      const gateTitle = document.getElementById("gateTitle");
+      const gateSubtitle = document.getElementById("gateSubtitle");
+      const gatePassword = document.getElementById("gatePassword");
+      const gateSubmit = document.getElementById("gateSubmit");
+      const gateReset = document.getElementById("gateReset");
+
+      // Helpers
+      function normalize(s){ return (s || "").toLowerCase().trim(); }
+
+      function slugify(s){
+        return normalize(s)
+          .replace(/[^a-z0-9\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "") || "section";
+      }
+
+      function safeUrl(u){
+        try {
+          const url = new URL(u);
+          if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+          return url.toString();
+        } catch {
+          return null;
+        }
+      }
+
+      function b64FromBytes(bytes){
+        let bin = "";
+        bytes.forEach(b => bin += String.fromCharCode(b));
+        return btoa(bin);
+      }
+
+      function bytesFromB64(b64){
+        const bin = atob(b64);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return bytes;
+      }
+
+      function bytesEqual(a, b){
+        if (a.length !== b.length) return false;
+        let ok = 0;
+        for (let i = 0; i < a.length; i++) ok |= (a[i] ^ b[i]);
+        return ok === 0;
+      }
+
+      async function pbkdf2(password, saltBytes, iterations){
+        const enc = new TextEncoder();
+        const keyMaterial = await crypto.subtle.importKey(
+          "raw",
+          enc.encode(password),
+          { name: "PBKDF2" },
+          false,
+          ["deriveBits"]
+        );
+        const bits = await crypto.subtle.deriveBits(
+          { name: "PBKDF2", salt: saltBytes, iterations, hash: "SHA-256" },
+          keyMaterial,
+          256
+        );
+        return new Uint8Array(bits);
+      }
+
+      // Data load/save
+      function loadData(){
+        const raw = localStorage.getItem(DATA_KEY);
+        if (!raw) return structuredClone(DEFAULT_DATA);
+        try {
+          const parsed = JSON.parse(raw);
+          if (!parsed || !Array.isArray(parsed.categories)) throw new Error("bad");
+          return parsed;
+        } catch {
+          return structuredClone(DEFAULT_DATA);
+        }
+      }
+
+      function saveData(data){
+        localStorage.setItem(DATA_KEY, JSON.stringify(data));
+      }
+
+      let data = loadData();
+
+      // Theme
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark" || savedTheme === "light") root.setAttribute("data-theme", savedTheme);
+
+      function toggleTheme(){
+        const current = root.getAttribute("data-theme");
+        const next = current === "dark" ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        localStorage.setItem("theme", next);
+      }
+      themeBtn.addEventListener("click", toggleTheme);
+
+      // Render
+      function clearNode(node){
+        while (node.firstChild) node.removeChild(node.firstChild);
+      }
+
+      function render(){
+        // Header title/subtitle
+        document.querySelector("h1").textContent = data.title || "Links";
+        document.querySelector(".subtitle").textContent = data.subtitle || "";
+
+        // TOC
+        clearNode(toc);
+        data.categories.forEach(cat => {
+          const li = document.createElement("li");
+          const a = document.createElement("a");
+          a.href = "#" + cat.id;
+          a.textContent = cat.name;
+          li.appendChild(a);
+          toc.appendChild(li);
+        });
+
+        // Main
+        clearNode(main);
+
+        data.categories.forEach(cat => {
+          const details = document.createElement("details");
+          details.className = "sec";
+          details.id = cat.id;
+          details.setAttribute("data-section", "1");
+          details.open = true;
+
+          const summary = document.createElement("summary");
+          summary.innerHTML = ""; // ensure no carryover
+
+          const titleSpan = document.createElement("span");
+          titleSpan.textContent = cat.name;
+
+          const anchor = document.createElement("a");
+          anchor.className = "anchor";
+          anchor.href = "#" + cat.id;
+          anchor.textContent = "#";
+          anchor.addEventListener("click", (e) => e.stopPropagation());
+
+          summary.appendChild(titleSpan);
+          summary.appendChild(anchor);
+          details.appendChild(summary);
+
+          if (cat.description){
+            const p = document.createElement("p");
+            p.className = "section-desc";
+            p.textContent = cat.description;
+            details.appendChild(p);
+          }
+
+          const ul = document.createElement("ul");
+          ul.className = "links";
+
+          (cat.links || []).forEach(link => {
+            const li = document.createElement("li");
+            li.className = "link-card";
+            li.setAttribute("data-link", "1");
+
+            const tags = Array.isArray(link.tags) ? link.tags : [];
+            li.setAttribute("data-tags", tags.join(" "));
+
+            const top = document.createElement("div");
+            top.className = "link-top";
+
+            const a = document.createElement("a");
+            a.className = "link-name";
+            a.href = link.url;
+            a.target = "_blank";
+            a.rel = "noreferrer";
+            a.textContent = link.name;
+
+            const meta = document.createElement("div");
+            meta.className = "meta";
+
+            const tagsWrap = document.createElement("span");
+            tagsWrap.className = "tags";
+            tags.forEach(t => {
+              const tag = document.createElement("span");
+              tag.className = "tag";
+              tag.textContent = t;
+              tagsWrap.appendChild(tag);
+            });
+
+            meta.appendChild(tagsWrap);
+            top.appendChild(a);
+            top.appendChild(meta);
+
+            li.appendChild(top);
+
+            if (link.desc){
+              const p = document.createElement("p");
+              p.className = "link-desc";
+              p.textContent = link.desc;
+              li.appendChild(p);
+            }
+
+            ul.appendChild(li);
+          });
+
+          details.appendChild(ul);
+          main.appendChild(details);
+        });
+
+        // Refresh category dropdown for modal
+        rebuildCategoryDropdown();
+        // Apply any active search
+        applyFilter();
+      }
+
+      function rebuildCategoryDropdown(){
+        clearNode(linkCategory);
+        data.categories.forEach(cat => {
+          const opt = document.createElement("option");
+          opt.value = cat.id;
+          opt.textContent = cat.name;
+          linkCategory.appendChild(opt);
+        });
+      }
+
+      // Search / filter
+      function applyFilter(){
+        const query = normalize(q.value);
+        const tokens = query.split(/\s+/).filter(Boolean);
+
+        const linkNodes = Array.from(document.querySelectorAll("[data-link]"));
+        const sectionNodes = Array.from(document.querySelectorAll("[data-section]"));
+
+        linkNodes.forEach(node => {
+          const name = normalize(node.querySelector(".link-name")?.textContent);
+          const desc = normalize(node.querySelector(".link-desc")?.textContent);
+          const tags = normalize(node.getAttribute("data-tags"));
+          const hay = (name + " " + desc + " " + tags);
+
+          const ok = tokens.every(t => hay.includes(t));
+          node.classList.toggle("hidden", !ok);
+        });
+
+        sectionNodes.forEach(sec => {
+          const visibleLinks = sec.querySelectorAll("[data-link]:not(.hidden)");
+          sec.classList.toggle("hidden", visibleLinks.length === 0);
+        });
+      }
+      q.addEventListener("input", applyFilter);
+
+      // Keyboard shortcuts
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "/" && document.activeElement !== q) {
+          e.preventDefault();
+          q.focus();
+        }
+        if (e.key === "Escape") {
+          if (!modalOverlay.classList.contains("hidden")) closeModal();
+          if (document.activeElement === q || q.value.length) {
+            q.value = "";
+            applyFilter();
+            q.blur();
+          }
+        }
+      });
+
+      // Expand/collapse all
+      let expanded = true;
+      function syncExpandBtn(){
+        expandBtn.textContent = expanded ? "Collapse all" : "Expand all";
+      }
+      syncExpandBtn();
+
+      expandBtn.addEventListener("click", () => {
+        expanded = !expanded;
+        Array.from(document.querySelectorAll("details.sec")).forEach(d => d.open = expanded);
+        syncExpandBtn();
+      });
+
+      // Modal open/close
+      function openModal(){
+        modalOverlay.classList.remove("hidden");
+        modalOverlay.setAttribute("aria-hidden", "false");
+        resetModalFields();
+        gatePassword.blur();
+        linkName.focus();
+      }
+
+      function closeModal(){
+        modalOverlay.classList.add("hidden");
+        modalOverlay.setAttribute("aria-hidden", "true");
+      }
+
+      function resetModalFields(){
+        addType.value = "link";
+        catName.value = "";
+        catId.value = "";
+        catDesc.value = "";
+        linkName.value = "";
+        linkUrl.value = "";
+        linkDesc.value = "";
+        linkTags.value = "";
+        categoryFields.style.display = "none";
+        linkFields.style.display = "";
+        categoryPickerWrap.style.display = "";
+      }
+
+      function updateModalTypeUI(){
+        const isCat = addType.value === "category";
+        categoryFields.style.display = isCat ? "" : "none";
+        linkFields.style.display = isCat ? "none" : "";
+        categoryPickerWrap.style.display = isCat ? "none" : "";
+        document.getElementById("modalTitle").textContent = isCat ? "Add category" : "Add link";
+      }
+
+      addType.addEventListener("change", updateModalTypeUI);
+
+      addBtn.addEventListener("click", () => {
+        openModal();
+        updateModalTypeUI();
+      });
+
+      modalCancel.addEventListener("click", closeModal);
+
+      modalOverlay.addEventListener("click", (e) => {
+        if (e.target === modalOverlay) closeModal();
+      });
+
+      // Clear saved data (keeps password)
+      modalDeleteAll.addEventListener("click", () => {
+        localStorage.removeItem(DATA_KEY);
+        data = structuredClone(DEFAULT_DATA);
+        render();
+        closeModal();
+      });
+
+      // Save from modal
+      modalSave.addEventListener("click", () => {
+        const type = addType.value;
+
+        if (type === "category"){
+          const name = (catName.value || "").trim();
+          if (!name){ alert("Category name required."); return; }
+
+          const idInput = (catId.value || "").trim();
+          const id = idInput ? slugify(idInput) : slugify(name);
+
+          if (data.categories.some(c => c.id === id)){
+            alert("Category id already exists. Choose a different id.");
+            return;
+          }
+
+          data.categories.push({
+            id,
+            name,
+            description: (catDesc.value || "").trim(),
+            links: []
+          });
+
+          saveData(data);
+          render();
+          closeModal();
+          location.hash = "#" + id;
+          return;
+        }
+
+        // Link
+        const catIdVal = linkCategory.value;
+        const cat = data.categories.find(c => c.id === catIdVal);
+        if (!cat){ alert("Select a category."); return; }
+
+        const name = (linkName.value || "").trim();
+        if (!name){ alert("Link name required."); return; }
+
+        const url = safeUrl((linkUrl.value || "").trim());
+        if (!url){ alert("Valid http(s) URL required."); return; }
+
+        const tags = (linkTags.value || "")
+          .split(",")
+          .map(t => t.trim())
+          .filter(Boolean)
+          .slice(0, 24);
+
+        cat.links = cat.links || [];
+        cat.links.push({
+          name,
+          url,
+          desc: (linkDesc.value || "").trim(),
+          tags
+        });
+
+        saveData(data);
+        render();
+        closeModal();
+        location.hash = "#" + cat.id;
+      });
+
+      // Password gate
+      async function ensurePasswordGate(){
+        // If already authed this session
+        if (sessionStorage.getItem(AUTH_SESSION_KEY) === "1") return true;
+
+        gate.classList.remove("hidden");
+
+        const savedHashB64 = localStorage.getItem(PASS_HASH_KEY);
+        const savedSaltB64 = localStorage.getItem(PASS_SALT_KEY);
+        const savedIters = parseInt(localStorage.getItem(PASS_ITERS_KEY) || "0", 10);
+
+        const hasPassword = !!(savedHashB64 && savedSaltB64 && savedIters);
+
+        gateTitle.textContent = hasPassword ? "Locked" : "Set a password";
+        gateSubtitle.textContent = hasPassword
+          ? "Enter the password to view and edit the page."
+          : "Choose a password. It will be saved as a hash in local storage.";
+
+        document.getElementById("gateLabel").textContent = hasPassword ? "Password" : "New password";
+        gateSubmit.textContent = hasPassword ? "Unlock" : "Set password";
+        gatePassword.value = "";
+        gatePassword.focus();
+
+        function resetPassword(){
+          localStorage.removeItem(PASS_HASH_KEY);
+          localStorage.removeItem(PASS_SALT_KEY);
+          localStorage.removeItem(PASS_ITERS_KEY);
+          sessionStorage.removeItem(AUTH_SESSION_KEY);
+          gatePassword.value = "";
+          gateTitle.textContent = "Set a password";
+          gateSubtitle.textContent = "Choose a password. It will be saved as a hash in local storage.";
+          document.getElementById("gateLabel").textContent = "New password";
+          gateSubmit.textContent = "Set password";
+        }
+        
+        gateReset.onclick = resetPassword;
+
+        async function submit(){
+          const pw = gatePassword.value || "";
+          if (pw.length < 8){
+            alert("Use at least 8 characters.");
+            return;
+          }
+
+          const iters = hasPassword ? savedIters : 160000;
+
+          const saltBytes = hasPassword
+            ? bytesFromB64(savedSaltB64)
+            : crypto.getRandomValues(new Uint8Array(16));
+
+          const derived = await pbkdf2(pw, saltBytes, iters);
+
+          if (!hasPassword){
+            localStorage.setItem(PASS_SALT_KEY, b64FromBytes(saltBytes));
+            localStorage.setItem(PASS_ITERS_KEY, String(iters));
+            localStorage.setItem(PASS_HASH_KEY, b64FromBytes(derived));
+            sessionStorage.setItem(AUTH_SESSION_KEY, "1");
+            gate.classList.add("hidden");
+            return;
+          }
+
+          const savedHash = bytesFromB64(savedHashB64);
+          if (bytesEqual(derived, savedHash)){
+            sessionStorage.setItem(AUTH_SESSION_KEY, "1");
+            gate.classList.add("hidden");
+            return;
+          }
+
+          alert("Wrong password.");
+          gatePassword.value = "";
+          gatePassword.focus();
+        }
+
+        gateSubmit.onclick = submit;
+        gatePassword.onkeydown = (e) => {
+          if (e.key === "Enter") submit();
+        };
+
+        // Wait until authenticated
+        return new Promise(resolve => {
+          const check = setInterval(() => {
+            if (sessionStorage.getItem(AUTH_SESSION_KEY) === "1"){
+              clearInterval(check);
+              resolve(true);
+            }
+          }, 100);
+        });
+      }
+
+      async function boot(){
+        await ensurePasswordGate();
+        page.classList.remove("hidden");
+        render();
+      }
+
+      boot();
+    })();
+  </script>
+</body>
+</html>
