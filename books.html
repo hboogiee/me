@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Books</title>
+  <meta name="description" content="A categorized reading list." />
+
+  <style>
+    :root{
+      --bg: #ffffff;
+      --fg: #111111;
+      --muted: #666666;
+      --faint: #888888;
+      --link: #0b57d0;
+      --visited: #6a1b9a;
+      --border: rgba(0,0,0,.12);
+      --card: rgba(0,0,0,.03);
+      --shadow: 0 1px 10px rgba(0,0,0,.05);
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --measure: 76ch;
+    }
+
+    [data-theme="dark"]{
+      --bg: #0c0f14;
+      --fg: #e7e7e7;
+      --muted: #b2b2b2;
+      --faint: #9aa3ad;
+      --link: #7db2ff;
+      --visited: #d3a6ff;
+      --border: rgba(255,255,255,.14);
+      --card: rgba(255,255,255,.06);
+      --shadow: 0 1px 14px rgba(0,0,0,.45);
+    }
+
+    html, body{ height: 100%; background: var(--bg); color: var(--fg); }
+    body{ margin: 0; font-family: var(--serif); line-height: 1.55; text-rendering: optimizeLegibility; }
+    a{ color: var(--link); text-decoration: underline; text-decoration-thickness: .08em; text-underline-offset: .12em; }
+    a:visited{ color: var(--visited); }
+    a:hover{ text-decoration-thickness: .12em; }
+    code, kbd{ font-family: var(--mono); font-size: .92em; }
+
+    .page{
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 28px;
+      max-width: calc(var(--measure) + 280px + 28px + 56px);
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    header{
+      grid-column: 1 / -1;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 8px;
+    }
+
+    .title-row{
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    h1{ font-size: 1.9rem; margin: 0; letter-spacing: -0.01em; }
+    .subtitle{
+      margin: 6px 0 0 0;
+      color: var(--muted);
+      max-width: var(--measure);
+      font-family: var(--sans);
+      font-size: .98rem;
+    }
+
+    .controls{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--sans);
+      flex-wrap: wrap;
+    }
+
+    .btn{
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--fg);
+      padding: 7px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      line-height: 1.2;
+      font-family: var(--sans);
+    }
+    .btn:hover{ background: var(--card); }
+
+    .search{
+      width: min(520px, 100%);
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      font-family: var(--sans);
+    }
+
+    .search input{
+      flex: 1;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--fg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      outline: none;
+    }
+    .search input:focus{ box-shadow: 0 0 0 3px rgba(125,178,255,.25); }
+
+    .hint{
+      color: var(--faint);
+      font-size: .9rem;
+      margin-top: 8px;
+      font-family: var(--sans);
+    }
+
+    nav{
+      position: sticky;
+      top: 18px;
+      align-self: start;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 14px 10px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      font-family: var(--sans);
+    }
+
+    nav .toc-title{
+      font-size: .95rem;
+      color: var(--muted);
+      margin: 0 0 10px 0;
+    }
+
+    nav ul{
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 6px;
+    }
+
+    nav a{ text-decoration: none; color: var(--fg); opacity: .92; }
+    nav a:hover{ text-decoration: underline; opacity: 1; }
+
+    main{ min-width: 0; max-width: var(--measure); }
+
+    details.sec{
+      padding: 14px 0 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    details.sec:last-child{ border-bottom: none; padding-bottom: 28px; }
+
+    details.sec > summary{
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--sans);
+      font-weight: 750;
+      font-size: 1.25rem;
+      letter-spacing: -0.01em;
+      margin: 0 0 10px 0;
+      user-select: none;
+    }
+    details.sec > summary::-webkit-details-marker{ display: none; }
+
+    .anchor{
+      font-size: .95rem;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .anchor:hover{ background: var(--card); }
+
+    .section-desc{
+      margin: 0 0 12px 0;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: .98rem;
+    }
+
+    .links{
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .link-card{
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 12px;
+      background: transparent;
+    }
+
+    .link-top{
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: baseline;
+      font-family: var(--sans);
+    }
+
+    .link-name{ font-weight: 650; letter-spacing: -0.01em; }
+
+    .meta{
+      color: var(--faint);
+      font-size: .9rem;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .tags{ display: flex; gap: 6px; flex-wrap: wrap; }
+    .tag{
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: .82rem;
+      color: var(--muted);
+      font-family: var(--sans);
+    }
+
+    .link-desc{
+      margin: 8px 0 0 0;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: .95rem;
+    }
+
+    .hidden{ display: none !important; }
+
+    footer{
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: .95rem;
+    }
+
+    @media (max-width: 900px){
+      .page{ grid-template-columns: 1fr; }
+      nav{ position: relative; top: 0; }
+      main{ max-width: 100%; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page" id="page">
+    <header>
+      <div class="title-row">
+        <div>
+          <h1>Books</h1>
+          <p class="subtitle">A categorized reading list. Same layout as the links page.</p>
+        </div>
+
+        <div class="controls">
+          <a class="btn" href="index.html" aria-label="Go to links page">Links</a>
+          <button class="btn" id="themeBtn" type="button">Theme</button>
+          <button class="btn" id="expandBtn" type="button">Collapse all</button>
+        </div>
+      </div>
+
+      <div class="search">
+        <input id="q" type="search" placeholder="Search books (title, author, tags)..." autocomplete="off" />
+      </div>
+      <div class="hint">Tip: type <kbd>/</kbd> to focus search. Press <kbd>Esc</kbd> to clear.</div>
+    </header>
+
+    <nav aria-label="Table of contents">
+      <p class="toc-title">Contents</p>
+      <ul id="toc"></ul>
+    </nav>
+
+    <main id="main"></main>
+
+    <footer>
+      <div>Some entries had ambiguous metadata in the source list. They are marked as “Unknown” where needed.</div>
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const root = document.documentElement;
+
+      const DEFAULT = {
+        categories: [
+          {
+            id: "finance-investing",
+            name: "Finance, investing, trading",
+            description: "Markets, risk, bubbles, and practitioner books.",
+            items: [
+              { title: "Liar's Poker", author: "Michael Lewis", tags: ["markets"] },
+              { title: "More Money Than God", author: "Sebastian Mallaby", tags: ["hedge-funds"] },
+              { title: "Too Big to Fail", author: "Andrew Ross Sorkin", tags: ["crisis"] },
+              { title: "Money and Power: How Goldman Sachs Came to Rule the World", author: "William D. Cohan", tags: ["banks"] },
+              { title: "The Ascent of Money: A Financial History of the World", author: "Niall Ferguson", tags: ["history"] },
+              { title: "Irrational Exuberance", author: "Robert J. Shiller", tags: ["bubbles"] },
+              { title: "The Four Pillars of Investing", author: "William J. Bernstein", tags: ["asset-allocation"] },
+              { title: "Stocks for the Long Run", author: "Jeremy J. Siegel", tags: ["equities"] },
+              { title: "Investments (12th Edition)", author: "Zvi Bodie, Alex Kane, Alan J. Marcus", tags: ["textbook"] },
+              { title: "Market Wizards", author: "Jack D. Schwager", tags: ["trading"] },
+              { title: "Reminiscences of a Stock Operator", author: "Edwin Lefèvre", tags: ["trading"] },
+              { title: "Best Loser Wins", author: "Tom Hougaard", tags: ["trading-psych"] },
+              { title: "The Mental Game of Trading", author: "Jared Tendler", tags: ["trading-psych"] },
+              { title: "Mastering the Market Cycle", author: "Howard Marks", tags: ["cycles"] },
+              { title: "The Art of Execution", author: "Lee Freeman-Shor", tags: ["portfolio"] },
+              { title: "Capital Wars: The Rise of Global Liquidity", author: "Michael J. Howell", tags: ["macro"] },
+              { title: "Alpha Trader", author: "Brent Donnelly", tags: ["fx","macro"] },
+              { title: "The Alchemy of Finance", author: "George Soros", tags: ["reflexivity"] },
+              { title: "Soros on Soros: Staying Ahead of the Curve", author: "George Soros", tags: ["interviews"] },
+              { title: "Traders, Guns and Money", author: "Satyajit Das", tags: ["derivatives"] },
+              { title: "Boom and Bust", author: "John D. Turner, William Quinn", tags: ["history"] },
+              { title: "Beat the Market", author: "Edward O. Thorp, Sheen T. Kassouf", tags: ["quant"] }
+            ]
+          },
+          {
+            id: "venture-startups",
+            name: "Venture capital, startups, scaling",
+            description: "VC mechanics, founder strategy, scaling.",
+            items: [
+              { title: "Venture Deals", author: "Brad Feld, Jason Mendelson", tags: ["term-sheets"] },
+              { title: "The Business of Venture Capital", author: "Mahendra Ramsinghani", tags: ["industry"] },
+              { title: "VC: An American History", author: "Tom Nicholas", tags: ["history"] },
+              { title: "Secrets of Sand Hill Road", author: "Scott Kupor", tags: ["industry"] },
+              { title: "Zero to One", author: "Peter Thiel, Blake Masters", tags: ["startups"] },
+              { title: "The Power Law: Venture Capital and the Making of the New Future", author: "Sebastian Mallaby", tags: ["vc"] },
+              { title: "High Growth Handbook", author: "Elad Gil", tags: ["scaling"] }
+            ]
+          },
+          {
+            id: "strategy-ops",
+            name: "Strategy, operations, leadership, marketing",
+            description: "Competitive strategy, execution, org design.",
+            items: [
+              { title: "The Art of Strategy", author: "Avinash K. Dixit, Barry J. Nalebuff", tags: ["game-theory"] },
+              { title: "The Goal", author: "Eliyahu M. Goldratt, Jeff Cox", tags: ["operations"] },
+              { title: "Strategy and Structure", author: "Alfred D. Chandler Jr.", tags: ["orgs"] },
+              { title: "The Outsiders", author: "William N. Thorndike Jr.", tags: ["ceos"] },
+              { title: "Start With Why", author: "Simon Sinek", tags: ["leadership"] },
+              { title: "Leaders Eat Last", author: "Simon Sinek", tags: ["leadership"] },
+              { title: "The 22 Immutable Laws of Marketing", author: "Al Ries, Jack Trout", tags: ["marketing"] },
+              { title: "Scaling Up", author: "Verne Harnish", tags: ["scaling"] },
+              { title: "Traction: Get a Grip on Your Business", author: "Gino Wickman", tags: ["ops"] },
+              { title: "Amp It Up", author: "Frank Slootman", tags: ["execution"] },
+              { title: "Primal Branding", author: "Patrick Hanlon", tags: ["branding"] },
+              { title: "Security Analysis and Business Valuation on Wall Street", author: "Jeffrey C. Hooke", tags: ["valuation"] }
+            ]
+          },
+          {
+            id: "negotiation-communication",
+            name: "Negotiation, communication",
+            description: "Influence, negotiation, clarity, conversation.",
+            items: [
+              { title: "Never Split the Difference", author: "Chris Voss (with Tahl Raz)", tags: ["negotiation"] },
+              { title: "Supercommunicators", author: "Charles Duhigg", tags: ["communication"] },
+              { title: "Smart Brevity", author: "Jim VandeHei, Mike Allen, Roy Schwartz", tags: ["writing"] }
+            ]
+          },
+          {
+            id: "psych-behavior",
+            name: "Psychology, decision-making, behavior",
+            description: "Biases, cognition, motivation, learning.",
+            items: [
+              { title: "Thinking, Fast and Slow", author: "Daniel Kahneman", tags: ["bias"] },
+              { title: "Predictably Irrational", author: "Dan Ariely", tags: ["behavioral-econ"] },
+              { title: "Thinking in Bets", author: "Annie Duke", tags: ["decision"] },
+              { title: "Mindset", author: "Carol S. Dweck", tags: ["growth"] },
+              { title: "Descartes' Error", author: "Antonio Damasio", tags: ["neuroscience"] },
+              { title: "Moonwalking with Einstein", author: "Joshua Foer", tags: ["memory"] },
+              { title: "How Customers Think", author: "Gerald Zaltman", tags: ["marketing"] },
+              { title: "Blink", author: "Malcolm Gladwell", tags: ["judgment"] }
+            ]
+          },
+          {
+            id: "creativity-productivity",
+            name: "Creativity, productivity, personal development",
+            description: "Creative work, habits, focus, self-direction.",
+            items: [
+              { title: "The Artist's Way", author: "Julia Cameron", tags: ["creativity"] },
+              { title: "Turning Pro", author: "Steven Pressfield", tags: ["work"] },
+              { title: "The War of Art", author: "Steven Pressfield", tags: ["work"] },
+              { title: "Make Time", author: "Jake Knapp, John Zeratsky", tags: ["focus"] },
+              { title: "Hyperfocus", author: "Chris Bailey", tags: ["focus"] },
+              { title: "Digital Minimalism", author: "Cal Newport", tags: ["attention"] },
+              { title: "The Distracted Mind", author: "Adam Gazzaley, Larry D. Rosen", tags: ["attention"] },
+              { title: "Ultralearning", author: "Scott H. Young", tags: ["learning"] },
+              { title: "Willpower Doesn't Work", author: "Benjamin P. Hardy", tags: ["habits"] },
+              { title: "Good Vibes, Good Life", author: "Vex King", tags: ["self-help"] },
+              { title: "Think and Grow Rich", author: "Napoleon Hill", tags: ["classic"] },
+              { title: "As a Man Thinketh", author: "James Allen", tags: ["classic"] },
+              { title: "The Flinch", author: "Julien Smith", tags: ["fear"] },
+              { title: "101 Essays That Will Change the Way You Think", author: "Brianna Wiest", tags: ["essays"] }
+            ]
+          },
+          {
+            id: "risk-systems-society",
+            name: "Risk, systems, society, tech",
+            description: "Fragility, institutions, information, modern society.",
+            items: [
+              { title: "Fooled by Randomness", author: "Nassim Nicholas Taleb", tags: ["risk"] },
+              { title: "Antifragile", author: "Nassim Nicholas Taleb", tags: ["risk"] },
+              { title: "Bullshit Jobs", author: "David Graeber", tags: ["work"] },
+              { title: "Because Internet", author: "Gretchen McCulloch", tags: ["language"] },
+              { title: "Team Human", author: "Douglas Rushkoff", tags: ["society"] },
+              { title: "Blown to Bits", author: "Hal Abelson, Ken Ledeen, Harry Lewis", tags: ["computing"] },
+              { title: "The Ideas Industry", author: "Daniel W. Drezner", tags: ["politics"] },
+              { title: "Why We're Polarized", author: "Ezra Klein", tags: ["politics"] }
+            ]
+          },
+          {
+            id: "history-classics",
+            name: "History, politics, classics, literature",
+            description: "Foundational texts and major literature.",
+            items: [
+              { title: "The Prince", author: "Niccolò Machiavelli", tags: ["politics"] },
+              { title: "Meditations", author: "Marcus Aurelius", tags: ["stoicism"] },
+              { title: "48 Laws of Power", author: "Robert Greene", tags: ["power"] },
+              { title: "Crime and Punishment", author: "Fyodor Dostoevsky", tags: ["novel"] },
+              { title: "The Gulag Archipelago", author: "Aleksandr Solzhenitsyn", tags: ["history"] },
+              { title: "The Structure of Scientific Revolutions", author: "Thomas S. Kuhn", tags: ["science"] },
+              { title: "Chaos", author: "James Gleick", tags: ["science"] },
+              { title: "In Pursuit of the Unknown", author: "Ian Stewart", tags: ["math"] },
+              { title: "If We Were Villains", author: "M. L. Rio", tags: ["fiction"] },
+              { title: "The Year of Magical Thinking", author: "Joan Didion", tags: ["memoir"] }
+            ]
+          },
+          {
+            id: "world-cities-climate",
+            name: "World, cities, climate, environment",
+            description: "Civilization, cities, climate risk, geopolitics.",
+            items: [
+              { title: "Chip War", author: "Chris Miller", tags: ["geopolitics","tech"] },
+              { title: "Good Economics for Hard Times", author: "Abhijit V. Banerjee, Esther Duflo", tags: ["economics"] },
+              { title: "Doughnut Economics", author: "Kate Raworth", tags: ["economics"] },
+              { title: "The Globalization Paradox", author: "Dani Rodrik", tags: ["economics"] },
+              { title: "How to Avoid a Climate Disaster", author: "Bill Gates", tags: ["climate"] },
+              { title: "2071: The World We'll Leave Our Grandchildren", author: "Kim Stanley Robinson", tags: ["climate"] },
+              { title: "Cities", author: "John Reader", tags: ["cities"] }
+            ]
+          },
+          {
+            id: "misc-uncertain",
+            name: "Unsorted or ambiguous entries",
+            description: "Items that lacked enough metadata to classify cleanly.",
+            items: [
+              { title: "Buried Money Secrets", author: "Unknown", tags: ["unknown"] },
+              { title: "Hunt for Unicorns", author: "Unknown", tags: ["unknown"] },
+              { title: "Solzhenitsyn and Dostoevsky", author: "Unknown", tags: ["unknown"] },
+              { title: "Innovation Capital: How to Compete and Win Like the World's Most…", author: "Unknown", tags: ["incomplete"] },
+              { title: "Reimagining Sustainable Cities", author: "Unknown", tags: ["unknown"] },
+              { title: "Frameworks for Thinking: A Handbook for Teaching and Learning", author: "Unknown", tags: ["unknown"] },
+              { title: "Essential balances", author: "Unknown", tags: ["unknown"] },
+              { title: "Stop and make money", author: "Unknown", tags: ["unknown"] },
+              { title: "The Weird Math series", author: "Unknown", tags: ["series"] },
+              { title: "Selected works", author: "Graham Hancock", tags: ["author"] },
+              { title: "Selected works", author: "Danny Dorling", tags: ["author"] }
+            ]
+          }
+        ]
+      };
+
+      const toc = document.getElementById("toc");
+      const main = document.getElementById("main");
+      const q = document.getElementById("q");
+      const themeBtn = document.getElementById("themeBtn");
+      const expandBtn = document.getElementById("expandBtn");
+
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark" || savedTheme === "light") root.setAttribute("data-theme", savedTheme);
+
+      function toggleTheme(){
+        const current = root.getAttribute("data-theme");
+        const next = current === "dark" ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        localStorage.setItem("theme", next);
+      }
+      themeBtn.addEventListener("click", toggleTheme);
+
+      function clearNode(node){
+        while (node.firstChild) node.removeChild(node.firstChild);
+      }
+
+      function normalize(s){ return (s || "").toLowerCase().trim(); }
+
+      function render(){
+        clearNode(toc);
+        DEFAULT.categories.forEach(cat => {
+          const li = document.createElement("li");
+          const a = document.createElement("a");
+          a.href = "#" + cat.id;
+          a.textContent = cat.name;
+          li.appendChild(a);
+          toc.appendChild(li);
+        });
+
+        clearNode(main);
+
+        DEFAULT.categories.forEach(cat => {
+          const details = document.createElement("details");
+          details.className = "sec";
+          details.id = cat.id;
+          details.setAttribute("data-section", "1");
+          details.open = true;
+
+          const summary = document.createElement("summary");
+
+          const titleSpan = document.createElement("span");
+          titleSpan.textContent = cat.name;
+
+          const anchor = document.createElement("a");
+          anchor.className = "anchor";
+          anchor.href = "#" + cat.id;
+          anchor.textContent = "#";
+          anchor.addEventListener("click", (e) => e.stopPropagation());
+
+          summary.appendChild(titleSpan);
+          summary.appendChild(anchor);
+          details.appendChild(summary);
+
+          if (cat.description){
+            const p = document.createElement("p");
+            p.className = "section-desc";
+            p.textContent = cat.description;
+            details.appendChild(p);
+          }
+
+          const ul = document.createElement("ul");
+          ul.className = "links";
+
+          (cat.items || []).forEach(b => {
+            const li = document.createElement("li");
+            li.className = "link-card";
+            li.setAttribute("data-link", "1");
+
+            const tags = Array.isArray(b.tags) ? b.tags : [];
+            const hayTags = tags.join(" ");
+            li.setAttribute("data-tags", (b.author || "") + " " + hayTags);
+
+            const top = document.createElement("div");
+            top.className = "link-top";
+
+            const title = document.createElement("span");
+            title.className = "link-name";
+            title.textContent = b.title;
+
+            const meta = document.createElement("div");
+            meta.className = "meta";
+
+            const author = document.createElement("span");
+            author.textContent = b.author;
+
+            const tagsWrap = document.createElement("span");
+            tagsWrap.className = "tags";
+            tags.forEach(t => {
+              const tag = document.createElement("span");
+              tag.className = "tag";
+              tag.textContent = t;
+              tagsWrap.appendChild(tag);
+            });
+
+            meta.appendChild(author);
+            meta.appendChild(tagsWrap);
+
+            top.appendChild(title);
+            top.appendChild(meta);
+
+            li.appendChild(top);
+            ul.appendChild(li);
+          });
+
+          details.appendChild(ul);
+          main.appendChild(details);
+        });
+
+        applyFilter();
+      }
+
+      function applyFilter(){
+        const query = normalize(q.value);
+        const tokens = query.split(/\s+/).filter(Boolean);
+
+        const itemNodes = Array.from(document.querySelectorAll("[data-link]"));
+        const sectionNodes = Array.from(document.querySelectorAll("[data-section]"));
+
+        itemNodes.forEach(node => {
+          const title = normalize(node.querySelector(".link-name")?.textContent);
+          const meta = normalize(node.getAttribute("data-tags"));
+          const hay = (title + " " + meta);
+
+          const ok = tokens.every(t => hay.includes(t));
+          node.classList.toggle("hidden", !ok);
+        });
+
+        sectionNodes.forEach(sec => {
+          const visible = sec.querySelectorAll("[data-link]:not(.hidden)");
+          sec.classList.toggle("hidden", visible.length === 0);
+        });
+      }
+      q.addEventListener("input", applyFilter);
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "/" && document.activeElement !== q) {
+          e.preventDefault();
+          q.focus();
+        }
+        if (e.key === "Escape") {
+          if (document.activeElement === q || q.value.length) {
+            q.value = "";
+            applyFilter();
+            q.blur();
+          }
+        }
+      });
+
+      let expanded = true;
+      function syncExpandBtn(){
+        expandBtn.textContent = expanded ? "Collapse all" : "Expand all";
+      }
+      syncExpandBtn();
+
+      expandBtn.addEventListener("click", () => {
+        expanded = !expanded;
+        Array.from(document.querySelectorAll("details.sec")).forEach(d => d.open = expanded);
+        syncExpandBtn();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

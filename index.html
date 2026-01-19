@@ -82,6 +82,7 @@
       align-items: center;
       gap: 10px;
       font-family: var(--sans);
+      flex-wrap: wrap;
     }
 
     .btn{
@@ -91,6 +92,9 @@
       padding: 7px 10px;
       border-radius: 10px;
       cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      line-height: 1.2;
     }
     .btn:hover{ background: var(--card); }
 
@@ -160,7 +164,6 @@
 
     main{ min-width: 0; max-width: var(--measure); }
 
-    /* Sections as <details> for collapse support */
     details.sec{
       padding: 14px 0 10px;
       border-bottom: 1px solid var(--border);
@@ -342,57 +345,43 @@
       border-color: rgba(255,0,0,.35);
       color: #ff6b6b;
     }
-
-    /* Login gate */
-    .gate{
-      position: fixed;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      padding: 18px;
-      background: var(--bg);
-      z-index: 2000;
-      font-family: var(--sans);
-    }
-    .gate-card{
-      width: min(520px, 100%);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: var(--shadow);
-      background: var(--card);
-    }
-    .gate-card h2{
-      margin: 0 0 8px 0;
-      font-size: 1.25rem;
-      letter-spacing: -0.01em;
-      color: var(--fg);
-    }
-    .gate-card .small{
-      color: var(--muted);
-      font-size: .95rem;
-      margin: 0 0 12px 0;
-    }
-    .gate-row{
-      display: grid;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .gate-actions{
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-    .notice{
-      color: var(--faint);
-      font-size: .88rem;
-      margin-top: 10px;
-      line-height: 1.4;
-    }
   </style>
 </head>
+
+<body>
+  <div class="page" id="page">
+    <header>
+      <div class="title-row">
+        <div>
+          <h1>Links</h1>
+          <p class="subtitle">A text-first directory of useful tools and references, grouped by category.</p>
+        </div>
+
+        <div class="controls">
+          <a class="btn" href="books.html" aria-label="Go to books page">Books</a>
+          <button class="btn plus" id="addBtn" type="button" aria-label="Add link or category">+</button>
+          <button class="btn" id="themeBtn" type="button" aria-label="Toggle theme">Theme</button>
+          <button class="btn" id="expandBtn" type="button" aria-label="Collapse all sections">Collapse all</button>
+        </div>
+      </div>
+
+      <div class="search">
+        <input id="q" type="search" placeholder="Search links (name, description, tags)..." autocomplete="off" />
+      </div>
+      <div class="hint">Tip: type <kbd>/</kbd> to focus search. Press <kbd>Esc</kbd> to clear.</div>
+    </header>
+
+    <nav aria-label="Table of contents">
+      <p class="toc-title">Contents</p>
+      <ul id="toc"></ul>
+    </nav>
+
+    <main id="main"></main>
+
+    <footer>
+      <div>Edits persist in this browser (localStorage).</div>
+    </footer>
+  </div>
 
   <!-- Add modal -->
   <div class="overlay hidden" id="modalOverlay" aria-hidden="true">
@@ -462,15 +451,8 @@
   <script>
     (function(){
       const root = document.documentElement;
-
-      // Storage keys
       const DATA_KEY = "linksPageData.v1";
-      const PASS_HASH_KEY = "linksPagePass.hash.v1";
-      const PASS_SALT_KEY = "linksPagePass.salt.v1";
-      const PASS_ITERS_KEY = "linksPagePass.iters.v1";
-      const AUTH_SESSION_KEY = "linksPageAuthed.v1";
 
-      // Defaults
       const DEFAULT_DATA = {
         title: "Links",
         subtitle: "A text-first directory of useful tools and references, grouped by category.",
@@ -496,20 +478,53 @@
             ]
           },
           {
+            id: "design",
+            name: "Design and color",
+            description: "Logos, palettes, and quick visual utilities.",
+            links: [
+              { name: "LogoIntern", url: "https://logointern.com/", desc: "Logo inspiration and variations.", tags: ["logo","branding"] },
+              { name: "Coolors", url: "https://coolors.co/", desc: "Palette generator and exploration.", tags: ["colors","palettes"] },
+              { name: "Color Hunt", url: "https://colorhunt.co/", desc: "Curated color palettes.", tags: ["colors","palettes"] }
+            ]
+          },
+          {
+            id: "utilities",
+            name: "Utilities",
+            description: "Simple, high-utility web tools.",
+            links: [
+              { name: "WeTransfer", url: "https://wetransfer.com/", desc: "Send large files quickly.", tags: ["files","sharing"] }
+            ]
+          },
+          {
+            id: "frameworks",
+            name: "Frameworks and thinking",
+            description: "Decision tools, mental models, and checklists.",
+            links: [
+              { name: "Untools", url: "https://untools.co/", desc: "Collection of thinking tools and frameworks.", tags: ["mental-models","decision"] }
+            ]
+          },
+          {
+            id: "data",
+            name: "Data and stats",
+            description: "Live counters, reference stats, and dashboards.",
+            links: [
+              { name: "Worldometer", url: "https://www.worldometers.info/", desc: "Live world statistics and reference data.", tags: ["stats","reference"] }
+            ]
+          },
+          {
             id: "aviation",
             name: "Aviation",
             description: "Tracking, weather, charts, and references.",
             links: [
               { name: "ADS-B Exchange Globe", url: "https://globe.adsbexchange.com/", desc: "Live aircraft tracking with strong filtering tools.", tags: ["tracking","ads-b"] },
               { name: "Aviation Weather Center", url: "https://aviationweather.gov/", desc: "Official aviation weather products and forecasts.", tags: ["metar","taf"] },
-              { name: "SkyVector", url: "https://skyvector.com/", desc: "Flight planning and aeronautical charts.", tags: ["charts"] }
+              { name: "SkyVector", url: "https://skyvector.com/", desc: "Flight planning and aeronautical charts.", tags: ["charts"] },
+              { name: "FlightConnections", url: "https://www.flightconnections.com/", desc: "Airline route maps and airport connectivity.", tags: ["routes","airlines"] }
             ]
           }
         ]
       };
 
-      // Elements
-      const page = document.getElementById("page");
       const toc = document.getElementById("toc");
       const main = document.getElementById("main");
       const q = document.getElementById("q");
@@ -538,14 +553,6 @@
       const modalSave = document.getElementById("modalSave");
       const modalDeleteAll = document.getElementById("modalDeleteAll");
 
-      const gate = document.getElementById("gate");
-      const gateTitle = document.getElementById("gateTitle");
-      const gateSubtitle = document.getElementById("gateSubtitle");
-      const gatePassword = document.getElementById("gatePassword");
-      const gateSubmit = document.getElementById("gateSubmit");
-      const gateReset = document.getElementById("gateReset");
-
-      // Helpers
       function normalize(s){ return (s || "").toLowerCase().trim(); }
 
       function slugify(s){
@@ -566,44 +573,6 @@
         }
       }
 
-      function b64FromBytes(bytes){
-        let bin = "";
-        bytes.forEach(b => bin += String.fromCharCode(b));
-        return btoa(bin);
-      }
-
-      function bytesFromB64(b64){
-        const bin = atob(b64);
-        const bytes = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-        return bytes;
-      }
-
-      function bytesEqual(a, b){
-        if (a.length !== b.length) return false;
-        let ok = 0;
-        for (let i = 0; i < a.length; i++) ok |= (a[i] ^ b[i]);
-        return ok === 0;
-      }
-
-      async function pbkdf2(password, saltBytes, iterations){
-        const enc = new TextEncoder();
-        const keyMaterial = await crypto.subtle.importKey(
-          "raw",
-          enc.encode(password),
-          { name: "PBKDF2" },
-          false,
-          ["deriveBits"]
-        );
-        const bits = await crypto.subtle.deriveBits(
-          { name: "PBKDF2", salt: saltBytes, iterations, hash: "SHA-256" },
-          keyMaterial,
-          256
-        );
-        return new Uint8Array(bits);
-      }
-
-      // Data load/save
       function loadData(){
         const raw = localStorage.getItem(DATA_KEY);
         if (!raw) return structuredClone(DEFAULT_DATA);
@@ -616,13 +585,12 @@
         }
       }
 
-      function saveData(data){
-        localStorage.setItem(DATA_KEY, JSON.stringify(data));
+      function saveData(d){
+        localStorage.setItem(DATA_KEY, JSON.stringify(d));
       }
 
       let data = loadData();
 
-      // Theme
       const savedTheme = localStorage.getItem("theme");
       if (savedTheme === "dark" || savedTheme === "light") root.setAttribute("data-theme", savedTheme);
 
@@ -634,17 +602,24 @@
       }
       themeBtn.addEventListener("click", toggleTheme);
 
-      // Render
       function clearNode(node){
         while (node.firstChild) node.removeChild(node.firstChild);
       }
 
+      function rebuildCategoryDropdown(){
+        clearNode(linkCategory);
+        data.categories.forEach(cat => {
+          const opt = document.createElement("option");
+          opt.value = cat.id;
+          opt.textContent = cat.name;
+          linkCategory.appendChild(opt);
+        });
+      }
+
       function render(){
-        // Header title/subtitle
         document.querySelector("h1").textContent = data.title || "Links";
         document.querySelector(".subtitle").textContent = data.subtitle || "";
 
-        // TOC
         clearNode(toc);
         data.categories.forEach(cat => {
           const li = document.createElement("li");
@@ -655,7 +630,6 @@
           toc.appendChild(li);
         });
 
-        // Main
         clearNode(main);
 
         data.categories.forEach(cat => {
@@ -666,7 +640,6 @@
           details.open = true;
 
           const summary = document.createElement("summary");
-          summary.innerHTML = ""; // ensure no carryover
 
           const titleSpan = document.createElement("span");
           titleSpan.textContent = cat.name;
@@ -741,23 +714,10 @@
           main.appendChild(details);
         });
 
-        // Refresh category dropdown for modal
         rebuildCategoryDropdown();
-        // Apply any active search
         applyFilter();
       }
 
-      function rebuildCategoryDropdown(){
-        clearNode(linkCategory);
-        data.categories.forEach(cat => {
-          const opt = document.createElement("option");
-          opt.value = cat.id;
-          opt.textContent = cat.name;
-          linkCategory.appendChild(opt);
-        });
-      }
-
-      // Search / filter
       function applyFilter(){
         const query = normalize(q.value);
         const tokens = query.split(/\s+/).filter(Boolean);
@@ -782,7 +742,6 @@
       }
       q.addEventListener("input", applyFilter);
 
-      // Keyboard shortcuts
       document.addEventListener("keydown", (e) => {
         if (e.key === "/" && document.activeElement !== q) {
           e.preventDefault();
@@ -798,7 +757,6 @@
         }
       });
 
-      // Expand/collapse all
       let expanded = true;
       function syncExpandBtn(){
         expandBtn.textContent = expanded ? "Collapse all" : "Expand all";
@@ -811,12 +769,10 @@
         syncExpandBtn();
       });
 
-      // Modal open/close
       function openModal(){
         modalOverlay.classList.remove("hidden");
         modalOverlay.setAttribute("aria-hidden", "false");
         resetModalFields();
-        gatePassword.blur();
         linkName.focus();
       }
 
@@ -837,6 +793,7 @@
         categoryFields.style.display = "none";
         linkFields.style.display = "";
         categoryPickerWrap.style.display = "";
+        document.getElementById("modalTitle").textContent = "Add link";
       }
 
       function updateModalTypeUI(){
@@ -848,19 +805,13 @@
       }
 
       addType.addEventListener("change", updateModalTypeUI);
-
-      addBtn.addEventListener("click", () => {
-        openModal();
-        updateModalTypeUI();
-      });
-
+      addBtn.addEventListener("click", () => { openModal(); updateModalTypeUI(); });
       modalCancel.addEventListener("click", closeModal);
 
       modalOverlay.addEventListener("click", (e) => {
         if (e.target === modalOverlay) closeModal();
       });
 
-      // Clear saved data (keeps password)
       modalDeleteAll.addEventListener("click", () => {
         localStorage.removeItem(DATA_KEY);
         data = structuredClone(DEFAULT_DATA);
@@ -868,7 +819,6 @@
         closeModal();
       });
 
-      // Save from modal
       modalSave.addEventListener("click", () => {
         const type = addType.value;
 
@@ -898,7 +848,6 @@
           return;
         }
 
-        // Link
         const catIdVal = linkCategory.value;
         const cat = data.categories.find(c => c.id === catIdVal);
         if (!cat){ alert("Select a category."); return; }
@@ -929,102 +878,7 @@
         location.hash = "#" + cat.id;
       });
 
-      // Password gate
-      async function ensurePasswordGate(){
-        // If already authed this session
-        if (sessionStorage.getItem(AUTH_SESSION_KEY) === "1") return true;
-
-        gate.classList.remove("hidden");
-
-        const savedHashB64 = localStorage.getItem(PASS_HASH_KEY);
-        const savedSaltB64 = localStorage.getItem(PASS_SALT_KEY);
-        const savedIters = parseInt(localStorage.getItem(PASS_ITERS_KEY) || "0", 10);
-
-        const hasPassword = !!(savedHashB64 && savedSaltB64 && savedIters);
-
-        gateTitle.textContent = hasPassword ? "Locked" : "Set a password";
-        gateSubtitle.textContent = hasPassword
-          ? "Enter the password to view and edit the page."
-          : "Choose a password. It will be saved as a hash in local storage.";
-
-        document.getElementById("gateLabel").textContent = hasPassword ? "Password" : "New password";
-        gateSubmit.textContent = hasPassword ? "Unlock" : "Set password";
-        gatePassword.value = "";
-        gatePassword.focus();
-
-        function resetPassword(){
-          localStorage.removeItem(PASS_HASH_KEY);
-          localStorage.removeItem(PASS_SALT_KEY);
-          localStorage.removeItem(PASS_ITERS_KEY);
-          sessionStorage.removeItem(AUTH_SESSION_KEY);
-          gatePassword.value = "";
-          gateTitle.textContent = "Set a password";
-          gateSubtitle.textContent = "Choose a password. It will be saved as a hash in local storage.";
-          document.getElementById("gateLabel").textContent = "New password";
-          gateSubmit.textContent = "Set password";
-        }
-
-        gateReset.onclick = resetPassword;
-
-        async function submit(){
-          const pw = gatePassword.value || "";
-          if (pw.length < 8){
-            alert("Use at least 8 characters.");
-            return;
-          }
-
-          const iters = hasPassword ? savedIters : 160000;
-
-          const saltBytes = hasPassword
-            ? bytesFromB64(savedSaltB64)
-            : crypto.getRandomValues(new Uint8Array(16));
-
-          const derived = await pbkdf2(pw, saltBytes, iters);
-
-          if (!hasPassword){
-            localStorage.setItem(PASS_SALT_KEY, b64FromBytes(saltBytes));
-            localStorage.setItem(PASS_ITERS_KEY, String(iters));
-            localStorage.setItem(PASS_HASH_KEY, b64FromBytes(derived));
-            sessionStorage.setItem(AUTH_SESSION_KEY, "1");
-            gate.classList.add("hidden");
-            return;
-          }
-
-          const savedHash = bytesFromB64(savedHashB64);
-          if (bytesEqual(derived, savedHash)){
-            sessionStorage.setItem(AUTH_SESSION_KEY, "1");
-            gate.classList.add("hidden");
-            return;
-          }
-
-          alert("Wrong password.");
-          gatePassword.value = "";
-          gatePassword.focus();
-        }
-
-        gateSubmit.onclick = submit;
-        gatePassword.onkeydown = (e) => {
-          if (e.key === "Enter") submit();
-        };
-
-        // Wait until authenticated
-        return new Promise(resolve => {
-          const check = setInterval(() => {
-            if (sessionStorage.getItem(AUTH_SESSION_KEY) === "1"){
-              clearInterval(check);
-              resolve(true);
-            }
-          }, 100);
-        });
-      }
-
-      async function boot(){
-        await ensurePasswordGate();
-        page.classList.remove("hidden");
-        render();
-      }
-
-      boot();
+      render();
     })();
   </script>
 </body>
