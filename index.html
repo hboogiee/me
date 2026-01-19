@@ -394,67 +394,6 @@
   </style>
 </head>
 
-<body>
-  <!-- Password gate -->
-  <div class="gate hidden" id="gate">
-    <div class="gate-card">
-      <h2 id="gateTitle">Locked</h2>
-      <p class="small" id="gateSubtitle">Enter the password to view and edit the page.</p>
-
-      <div class="gate-row">
-        <label>
-          <span id="gateLabel">Password</span>
-          <input id="gatePassword" type="password" autocomplete="current-password" />
-        </label>
-      </div>
-
-      <div class="gate-actions">
-        <button class="btn" id="gateReset" type="button">Reset password</button>
-        <div class="actions-right">
-          <button class="btn" id="gateSubmit" type="button">Unlock</button>
-        </div>
-      </div>
-
-      <div class="notice">
-        This gate improves casual privacy only. It does not provide real access control for hosting on the internet.
-        For real protection, use server authentication (Basic Auth, reverse proxy, or your host’s password feature).
-      </div>
-    </div>
-  </div>
-
-  <div class="page hidden" id="page">
-    <header>
-      <div class="title-row">
-        <div>
-          <h1>Links</h1>
-          <p class="subtitle">A text-first directory of useful tools and references, grouped by category.</p>
-        </div>
-
-        <div class="controls">
-          <button class="btn plus" id="addBtn" type="button" aria-label="Add link or category">+</button>
-          <button class="btn" id="themeBtn" type="button" aria-label="Toggle theme">Theme</button>
-          <button class="btn" id="expandBtn" type="button" aria-label="Expand all sections">Collapse all</button>
-        </div>
-      </div>
-
-      <div class="search">
-        <input id="q" type="search" placeholder="Search links (name, description, tags)..." autocomplete="off" />
-      </div>
-      <div class="hint">Tip: type <kbd>/</kbd> to focus search. Press <kbd>Esc</kbd> to clear.</div>
-    </header>
-
-    <nav aria-label="Table of contents">
-      <p class="toc-title">Contents</p>
-      <ul id="toc"></ul>
-    </nav>
-
-    <main id="main"></main>
-
-    <footer>
-      <div>Edits persist in your browser storage. If you want portability, add export/import later.</div>
-    </footer>
-  </div>
-
   <!-- Add modal -->
   <div class="overlay hidden" id="modalOverlay" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -1024,7 +963,7 @@
           document.getElementById("gateLabel").textContent = "New password";
           gateSubmit.textContent = "Set password";
         }
-        
+
         gateReset.onclick = resetPassword;
 
         async function submit(){
